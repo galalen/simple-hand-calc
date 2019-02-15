@@ -7,19 +7,20 @@ args = vars(ap.parse_args())
 
 import numpy as np
 import cv2
+import tensorflow as tf
 from keras.models import load_model
-from keras.preprocessing.image import img_to_array
-from keras.applications.inception_v3 import preprocess_input
+from tensorflow.keras.preprocessing.image import img_to_array
+from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 
 # loading trained model
 print(f"[INFO] loading model: {args['model']}")
-model = load_model(args["model"])
+model = tf.contrib.saved_model.load_keras_model(args["model"])
 
 classes = [1, 2, 3, 4, 5]
 
 # predict class from an image
 def predict(roi):
-	roi = cv2.resize(roi, (224, 224))
+	roi = cv2.resize(roi, (160, 160))
 	img = img_to_array(roi)
 	img = np.expand_dims(img, axis=0)
 	img = preprocess_input(img)
@@ -121,7 +122,7 @@ while 1:
 
 	if draw_y:
 		draw_second_number(resized_frame, y_pred)
-
+		
 		result = x_pred + y_pred
 		
 		draw_equal_sign(resized_frame)
@@ -130,15 +131,15 @@ while 1:
 
 	cv2.imshow('Calc', resized_frame)
 
-	if cv2.waitKey(1) & 0xFF == ord('q'):
-		break
+	# if cv2.waitKey(1) & 0xFF == ord('q'):
+	# 	break
 
-	# if cv2.waitKey(1) & 0xFF == ord('r'):
-	# 	print("[INFO] reset the vars...")
-	# 	draw_x = False
-	# 	draw_y = False
-	# 	x_pred = None
-	# 	y_pred = None
+	if cv2.waitKey(1) & 0xFF == ord('r'):
+		print("[INFO] reset the vars...")
+		draw_x = False
+		draw_y = False
+		x_pred = None
+		y_pred = None
 
 cv2.destroyAllWindows()
 cap.release()
